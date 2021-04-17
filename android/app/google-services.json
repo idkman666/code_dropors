@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "366580968940",
+    "project_id": "dropors",
+    "storage_bucket": "dropors.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:366580968940:android:f0237d8c0ef6dcea79a4c9",
+        "android_client_info": {
+          "package_name": "com.proto.dropors"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "366580968940-r242rogafjrkfo42t99r89fsn87fgta0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpO6a0uHvufcFR1uqdSaH1rLiq6cqJ3KQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "366580968940-r242rogafjrkfo42t99r89fsn87fgta0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
