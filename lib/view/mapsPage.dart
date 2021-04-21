@@ -30,24 +30,24 @@ class _MapsPageState extends State<MapsPage> {
   }
 
   void getPermission() async {
-    bool serviceEnabled = await _location.serviceEnabled();
-    if (serviceEnabled == false) {
-      await _location.requestPermission();
-    } else {
-      await getLocation();
+    if (widget.latitude == null || widget.longitude == null) {
+      bool serviceEnabled = await _location.serviceEnabled();
+      if (serviceEnabled == false) {
+        await _location.requestPermission();
+      } else {
+        await getLocation();
+      }
     }
   }
 
   Future<void> getLocation() async {
     //check permission here
-    if (widget.latitude == null || widget.longitude == null) {
-      LocationData pos = await _location.getLocation();
-      setState(() {
-        userXCoordinate = pos.latitude;
-        userYCoordinate = pos.longitude;
-      });
-      //selectedPage = <Widget>[HomePage(stream: stream), MapsPage(latitude: userXCoordinate, longitude: userYCoordinate,),AddPost(camera: widget.camera,),ProfilePage()];
-    }
+    LocationData pos = await _location.getLocation();
+    setState(() {
+      userXCoordinate = pos.latitude;
+      userYCoordinate = pos.longitude;
+    });
+    //selectedPage = <Widget>[HomePage(stream: stream), MapsPage(latitude: userXCoordinate, longitude: userYCoordinate,),AddPost(camera: widget.camera,),ProfilePage()];
   }
 
   void setMarkers() {
@@ -57,7 +57,6 @@ class _MapsPageState extends State<MapsPage> {
       element.docs.forEach((doc) {
         //add to marker list
         var docData = doc.data();
-        print(docData["content"]);
         markers.add(
             customMarker(docData["x-coordinate"], docData["y-coordinate"]));
       });

@@ -1,11 +1,14 @@
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropors/view/cameraPreviewPage.dart';
+import 'package:dropors/view/imageEditing/imageEditingPage.dart';
+import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
+import 'package:image_editor/image_editor.dart' hide ImageSource;
+import 'package:image_picker/image_picker.dart' as Image_Picker;
 import 'package:location/location.dart';
 
 class AddPost extends StatefulWidget {
-
-
   AddPost({Key key}) : super(key: key);
 
   @override
@@ -13,7 +16,6 @@ class AddPost extends StatefulWidget {
 }
 
 class _AddPostState extends State<AddPost> {
-
   final TextEditingController textEditingController = TextEditingController();
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
   String userPostText;
@@ -83,73 +85,83 @@ class _AddPostState extends State<AddPost> {
   @override
   Widget build(BuildContext context) {
     return Center(
-            child: Column(
-              children: [
-                Flexible(
-                  flex: 2,
-                  child: Card(
-                    elevation: 8.0,
-                    child: Container(
-                        width: MediaQuery.of(context).size.width * 0.9,
-                        height: MediaQuery.of(context).size.height * 0.65,
-                        padding: EdgeInsets.all(10),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            TextField(
-                              cursorColor: Colors.black,
-                              controller: textEditingController,
-                              onChanged: (e) {
-                                onUserPostTextChange();
-                              },
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: 'Say something',
-                              ),
-                            ),
-                            TextField(
-                              cursorColor: Colors.black,
-                              onChanged: (e) {
-                                setState(() {
-                                  x_coordinate = double.parse(e);
-                                });
-                              },
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: 'X_Coordinate',
-                              ),
-                            ),
-                            TextField(
-                              cursorColor: Colors.black,
-                              onChanged: (e) {
-                                setState(() {
-                                  y_coordinate = double.parse(e);
-                                });
-                              },
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(),
-                                hintText: 'Y_Coordinate',
-                              ),
-                            ),
-                            ElevatedButton(
-                                onPressed: () {
-                                  handlePost();
-                                },
-                                child: Text("Post")),
-                            ElevatedButton(
-                                onPressed: () {}, child: Text("Add Pic")),
-                            ElevatedButton(
-                              child: Icon(Icons.camera_alt_outlined),
-                              onPressed: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => CameraPreviewPage()));
-                              },
-                            )
-                          ],
-                        )),
-                  ),
-                )
-              ],
+      child: Column(
+        children: [
+          Flexible(
+            flex: 2,
+            child: Card(
+              elevation: 8.0,
+              child: Container(
+                  width: MediaQuery.of(context).size.width * 0.9,
+                  height: MediaQuery.of(context).size.height * 0.65,
+                  padding: EdgeInsets.all(10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      TextField(
+                        cursorColor: Colors.black,
+                        controller: textEditingController,
+                        onChanged: (e) {
+                          onUserPostTextChange();
+                        },
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Say something',
+                        ),
+                      ),
+                      TextField(
+                        cursorColor: Colors.black,
+                        onChanged: (e) {
+                          setState(() {
+                            x_coordinate = double.parse(e);
+                          });
+                        },
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'X_Coordinate',
+                        ),
+                      ),
+                      TextField(
+                        cursorColor: Colors.black,
+                        onChanged: (e) {
+                          setState(() {
+                            y_coordinate = double.parse(e);
+                          });
+                        },
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Y_Coordinate',
+                        ),
+                      ),
+                      ElevatedButton(
+                          onPressed: () {
+                            handlePost();
+                          },
+                          child: Text("Post")),
+                      ElevatedButton(onPressed: () {}, child: Text("Add Pic")),
+                      ElevatedButton(
+                        child: Icon(Icons.camera_alt_outlined),
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => CameraPreviewPage()));
+                        },
+                      ),
+                      ElevatedButton(
+                        child: Icon(Icons.image),
+                        onPressed: () {
+
+                        },
+                      )
+                    ],
+                  )),
             ),
-          );
+          )
+        ],
+      ),
+    );
   }
+
+
 }

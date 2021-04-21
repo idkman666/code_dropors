@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:dropors/view/cameraPreviewScreen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -187,6 +188,7 @@ class _CameraPreviewPageState extends State<CameraPreviewPage> {
     try {
       final path = join((await getTemporaryDirectory()).path,'${DateTime.now()}.jpeg');
       await cameraController.takePicture(path);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => CameraPreviewScreen(imgPath: path,)));
     }catch(e){
       _showCameraException(e);
     }

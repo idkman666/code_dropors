@@ -1,7 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:esys_flutter_share/esys_flutter_share.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
@@ -33,11 +32,11 @@ class _CameraPreviewScreenState extends State<CameraPreviewScreen> {
                 color: Colors.black,
                 child: Center(
                   child: IconButton(
-                    icon: Icon(Icons.share, color: Colors.white10),
+                    icon: Icon(Icons.share, color: Colors.white),
                     onPressed: (){
-                      getBytes().then((bytes){
-                        Share.file("Share via", basename(widget.imgPath), bytes.buffer.asUint8List(), "image/path");
-                      });
+                      // getBytes().then((bytes){
+                      //   Share.file("Share via", basename(widget.imgPath), bytes.buffer.asUint8List(), "image/path");
+                      // });
 
                     },
                   ),
@@ -51,7 +50,7 @@ class _CameraPreviewScreenState extends State<CameraPreviewScreen> {
   }
 
   Future<ByteData> getBytes()async{
-    Uint8List bytes = File(widget.imgPath).readAsLinesSync() as Uint8List;
+    Uint8List bytes = File(widget.imgPath).readAsString(encoding: utf8) as Uint8List;
     return ByteData.view(bytes.buffer);
   }
 }
