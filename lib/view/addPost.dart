@@ -1,11 +1,9 @@
-import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dropors/view/cameraPreviewPage.dart';
 import 'package:dropors/view/imageEditing/imageEditingPage.dart';
-import 'package:extended_image/extended_image.dart';
+import 'package:dropors/view/imageEditing/tempDrawOverImg.dart';
+
 import 'package:flutter/material.dart';
-import 'package:image_editor/image_editor.dart' hide ImageSource;
-import 'package:image_picker/image_picker.dart' as Image_Picker;
 import 'package:location/location.dart';
 
 class AddPost extends StatefulWidget {
@@ -145,13 +143,13 @@ class _AddPostState extends State<AddPost> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => CameraPreviewPage()));
+                                  builder: (context) => CropPage()));
                         },
                       ),
                       ElevatedButton(
                         child: Icon(Icons.image),
                         onPressed: () {
-
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => ImageEditingPage()));
                         },
                       )
                     ],
@@ -162,6 +160,4 @@ class _AddPostState extends State<AddPost> {
       ),
     );
   }
-
-
 }
