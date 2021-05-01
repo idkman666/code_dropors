@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:dropors/view/cameraPreviewPage.dart';
 import 'package:dropors/view/imageEditing/imageEditingPage.dart';
 import 'package:dropors/view/imageEditing/tempDrawOverImg.dart';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 
 class AddPost extends StatefulWidget {
@@ -143,13 +145,13 @@ class _AddPostState extends State<AddPost> {
                           Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (context) => CropPage()));
+                                  builder: (context) => TransformDemo2()));
                         },
                       ),
                       ElevatedButton(
                         child: Icon(Icons.image),
                         onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => ImageEditingPage()));
+                          _pickImage();
                         },
                       )
                     ],
@@ -159,5 +161,14 @@ class _AddPostState extends State<AddPost> {
         ],
       ),
     );
+  }
+  File imageFile;
+  Future<Null> _pickImage() async {
+    final pickedImage =
+    await ImagePicker().getImage(source: ImageSource.gallery);
+    imageFile = pickedImage != null ? File(pickedImage.path) : null;
+    if (imageFile != null) {
+      Navigator.push(context, MaterialPageRoute(builder: (context) => ImageEditingPage(image: imageFile,)));
+    }
   }
 }

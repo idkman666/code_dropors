@@ -1,119 +1,234 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'dart:io';
+import 'package:matrix_gesture_detector/matrix_gesture_detector.dart';
 
-import 'package:image_cropper/image_cropper.dart';
-import 'package:image_picker/image_picker.dart';
-
-class CropPage extends StatefulWidget {
+class TransformDemo2 extends StatefulWidget {
   @override
-  _CropPageState createState() => _CropPageState();
+  State<StatefulWidget> createState() => TransformDemo4State();
 }
 
-enum AppState {
-  free,
-  picked,
-  cropped,
-}
+class TransformDemo4State extends State<TransformDemo2>
+    with TickerProviderStateMixin {
+  ValueNotifier<Matrix4> notifier = ValueNotifier(Matrix4.identity());
+  bool shouldScale = true;
+  bool shouldRotate = true;
+  AnimationController controller;
 
-class _CropPageState extends State<CropPage> {
-  AppState state;
-  File imageFile;
+  Alignment focalPoint = Alignment.center;
+
+  Animation<Alignment> focalPointAnimation;
+  List items = [
+    Alignment.topLeft,
+    Alignment.topCenter,
+    Alignment.topRight,
+    Alignment.centerLeft,
+    Alignment.center,
+    Alignment.centerRight,
+    Alignment.bottomLeft,
+    Alignment.bottomCenter,
+    Alignment.bottomRight,
+  ]
+      .map(
+        (alignment) => DropdownMenuItem<Alignment>(
+      value: alignment,
+      child: Text(
+        alignment.toString(),
+      ),
+    ),
+  )
+      .toList();
 
   @override
   void initState() {
     super.initState();
-    state = AppState.free;
+    controller =
+        AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+    focalPointAnimation = makeFocalPointAnimation(focalPoint, focalPoint);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey,
       appBar: AppBar(
-        title: Text("Crop Image"),
+        title: Text('Transform Demo 4'),
       ),
-      body: Center(
-        child: imageFile != null ? Image.file(imageFile) : Container(),
-      ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.deepOrange,
-        onPressed: () {
-          if (state == AppState.free)
-            _pickImage();
-          else if (state == AppState.picked)
-            _cropImage();
-          else if (state == AppState.cropped) _clearImage();
-        },
-        child: _buildButtonIcon(),
+      body: Column(
+        children: makeControls() + makeMainWidget(getBody()),
       ),
     );
   }
 
-  Widget _buildButtonIcon() {
-    if (state == AppState.free)
-      return Icon(Icons.add);
-    else if (state == AppState.picked)
-      return Icon(Icons.crop);
-    else if (state == AppState.cropped)
-      return Icon(Icons.clear);
-    else
-      return Container();
+  Body getBody() {
+    String lbl = 'use your fingers to ';
+    if (shouldRotate && shouldScale)
+      return Body(lbl + 'rotate / scale', Icons.crop_rotate, Color(0x6600aa00));
+    if (shouldRotate)
+      return Body(lbl + 'rotate', Icons.crop_rotate, Color(0x6600aa00));
+    if (shouldScale)
+      return Body(lbl + 'scale', Icons.transform, Color(0x660000aa));
+    return Body('you have to select at least one checkbox above', Icons.warning,
+        Color(0x66aa0000));
   }
 
-  Future<Null> _pickImage() async {
-    final pickedImage =
-    await ImagePicker().getImage(source: ImageSource.gallery);
-    imageFile = pickedImage != null ? File(pickedImage.path) : null;
-    if (imageFile != null) {
-      setState(() {
-        state = AppState.picked;
-        print("state" + state.toString());
-      });
+  Animation<Alignment> makeFocalPointAnimation(Alignment begin, Alignment end) {
+    return controller.drive(AlignmentTween(begin: begin, end: end));
+  }
+
+  List<Widget> makeControls() => [
+    ListTile(
+      title: Text('focal point'),
+      trailing: DropdownButton(
+        onChanged: (dynamic value) {
+          setState(() {
+            focalPointAnimation =
+                makeFocalPointAnimation(focalPointAnimation.value, value);
+            focalPoint = value;
+            controller.forward(from: 0.0);
+          });
+        },
+        value: focalPoint,
+        items: items as List<DropdownMenuItem<dynamic>>,
+      ),
+    ),
+    CheckboxListTile(
+      value: shouldScale,
+      onChanged: (bool value) {
+        setState(() {
+          shouldScale = value;
+        });
+      },
+      title: Text('scale'),
+    ),
+    CheckboxListTile(
+      value: shouldRotate,
+      onChanged: (bool value) {
+        setState(() {
+          shouldRotate = value;
+        });
+      },
+      title: Text('rotate'),
+    ),
+  ];
+
+  List<Widget> makeMainWidget(Body body) => [
+    Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(32.0),
+        child: MatrixGestureDetector(
+          onMatrixUpdate: (m, tm, sm, rm) {
+            notifier.value = m;
+          },
+          shouldTranslate: false,
+          shouldScale: shouldScale,
+          shouldRotate: shouldRotate,
+          focalPointAlignment: focalPoint,
+          clipChild: false,
+          child: CustomPaint(
+            foregroundPainter: FocalPointPainter(focalPointAnimation),
+            child: AnimatedBuilder(
+              animation: notifier,
+              builder: (ctx, child) => makeTransform(ctx, child, body),
+            ),
+          ),
+        ),
+      ),
+    )
+  ];
+
+  Widget makeTransform(BuildContext context, Widget child, Body body) {
+    return Transform(
+      transform: notifier.value,
+      child: GridPaper(
+        color: Color(0xaa0000ff),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(width: 4.0, color: Color(0xaa00cc00)),
+            borderRadius: BorderRadius.all(Radius.circular(32.0)),
+          ),
+          child: AnimatedSwitcher(
+            duration: Duration(milliseconds: 400),
+            transitionBuilder: (child, animation) => ScaleTransition(
+              scale: animation,
+              child: child,
+              alignment: focalPoint,
+            ),
+            switchInCurve: Curves.ease,
+            switchOutCurve: Curves.ease,
+            child: Stack(
+              key: ValueKey('$shouldRotate-$shouldScale'),
+              fit: StackFit.expand,
+              children: <Widget>[
+                FittedBox(
+                  child: Icon(
+                    body.icon,
+                    color: body.color,
+                  ),
+                ),
+                Container(
+                  alignment: Alignment(0, -0.5),
+                  child: Text(
+                    body.label,
+                    style: Theme.of(context).textTheme.display2,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class Body {
+  String label;
+  IconData icon;
+  Color color;
+
+  Body(this.label, this.icon, this.color);
+}
+
+class FocalPointPainter extends CustomPainter {
+  Animation<Alignment> focalPointAnimation;
+  Path cross;
+  Paint foregroundPaint;
+
+  FocalPointPainter(this.focalPointAnimation)
+      : super(repaint: focalPointAnimation) {
+    foregroundPaint = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 6
+      ..color = Colors.white70;
+  }
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (cross == null) {
+      initCross(size);
     }
+
+    Offset translation = focalPointAnimation.value.alongSize(size);
+    canvas.translate(translation.dx, translation.dy);
+    canvas.drawPath(cross, foregroundPaint);
   }
 
-  Future<Null> _cropImage() async {
-    File croppedFile = await ImageCropper.cropImage(
-        sourcePath: imageFile.path,
-        aspectRatioPresets: Platform.isAndroid
-            ? [
-          CropAspectRatioPreset.square,
-          CropAspectRatioPreset.ratio3x2,
-          CropAspectRatioPreset.original,
-          CropAspectRatioPreset.ratio4x3,
-          CropAspectRatioPreset.ratio16x9
-        ]
-            : [
-          CropAspectRatioPreset.original,
-          CropAspectRatioPreset.square,
-          CropAspectRatioPreset.ratio3x2,
-          CropAspectRatioPreset.ratio4x3,
-          CropAspectRatioPreset.ratio5x3,
-          CropAspectRatioPreset.ratio5x4,
-          CropAspectRatioPreset.ratio7x5,
-          CropAspectRatioPreset.ratio16x9
-        ],
-        androidUiSettings: AndroidUiSettings(
-            toolbarTitle: 'Cropper',
-            toolbarColor: Colors.deepOrange,
-            toolbarWidgetColor: Colors.white,
-            initAspectRatio: CropAspectRatioPreset.original,
-            lockAspectRatio: false),
-        iosUiSettings: IOSUiSettings(
-          title: 'Cropper',
-        ));
-    if (croppedFile != null) {
-      imageFile = croppedFile;
-      setState(() {
-        state = AppState.cropped;
-      });
-    }
-  }
+  @override
+  bool hitTest(Offset position) => true;
 
-  void _clearImage() {
-    imageFile = null;
-    setState(() {
-      state = AppState.free;
-    });
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => true;
+
+  void initCross(Size size) {
+    var s = size.shortestSide / 8;
+    cross = Path()
+      ..moveTo(-s, 0)
+      ..relativeLineTo(s * 0.75, 0)
+      ..moveTo(s, 0)
+      ..relativeLineTo(-s * 0.75, 0)
+      ..moveTo(0, s)
+      ..relativeLineTo(0, -s * 0.75)
+      ..addOval(Rect.fromCircle(center: Offset.zero, radius: s * 0.85));
   }
 }

@@ -57,15 +57,18 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void onTapHandler(int index) {
-    if(index != 2)
-      {
-        setState(() {
-          _selectedIndex = index;
-        });
-      }else
-        {
-         _bottomPopAddMenu();
-        }
+    // if(index != 2)
+    //   {
+    //     setState(() {
+    //       _selectedIndex = index;
+    //     });
+    //   }else
+    //     {
+    //      _bottomPopAddMenu();
+    //     }
+    setState(() {
+      _selectedIndex = index;
+    });
   }
 
   void _bottomPopAddMenu()

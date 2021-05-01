@@ -39,7 +39,7 @@ dependencies:
   permission_handler: ^6.1.3
   screenshot: ^0.3.0
   flutter_colorpicker: ^0.4.0
-
+  matrix_gesture_detector: ^0.1.0
 
   extended_image:
     git:
