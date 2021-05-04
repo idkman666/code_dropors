@@ -8,6 +8,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:matrix_gesture_detector/matrix_gesture_detector.dart';
 import 'package:screenshot/screenshot.dart';
+import 'package:text_editor/text_editor.dart';
 
 
 class ImageEditingPage extends StatefulWidget {
@@ -262,6 +263,35 @@ class _ImageEditingPageState extends State<ImageEditingPage> with TickerProvider
     );
   }
 
+
+  final fonts = [
+    'OpenSans',
+    'Billabong',
+    'GrandHotel',
+    'Oswald',
+    'Quicksand',
+    'BeautifulPeople',
+    'BeautyMountains',
+    'BiteChocolate',
+    'BlackberryJam',
+    'BunchBlossoms',
+    'CinderelaRegular',
+    'Countryside',
+    'Halimun',
+    'LemonJelly',
+    'QuiteMagicalRegular',
+    'Tomatoes',
+    'TropicalAsianDemoRegular',
+    'VeganStyle',
+  ];
+  TextStyle _textStyle = TextStyle(
+    fontSize: 50,
+    color: Colors.white,
+    fontFamily: 'Billabong',
+  );
+  String _text = 'Sample Text';
+  TextAlign _textAlign = TextAlign.center;
+
   Widget postTextArea()
   {
     return MatrixGestureDetector(onMatrixUpdate: (m, tm, sm, rm) {
@@ -287,13 +317,30 @@ class _ImageEditingPageState extends State<ImageEditingPage> with TickerProvider
                 fit: StackFit.expand,
                 children: [
                   Container(
-                    height: 100,
-                    width: 100,
-                    color: Colors.blue,
-                    alignment: Alignment(0, -0.5),
-                    child: Text(
-                      "User Post", textAlign: TextAlign.center,
-                    ),
+                    width: MediaQuery.of(context).size.width,
+                    child: TextEditor(
+                      fonts: fonts,
+                      paletteColors: [
+                        Colors.black,
+                        Colors.white,
+                        Colors.blue,
+                        Colors.red,
+                        Colors.green,
+                        Colors.yellow,
+                        Colors.pink,
+                        Colors.cyanAccent,
+                      ],
+                      text: "Hello",
+                      textStyle: _textStyle,
+                      textAlingment: _textAlign,
+                      onEditCompleted: (style, align, text) {
+                        setState(() {
+                          _text = text;
+                          _textStyle = style;
+                          _textAlign = align;
+                        });
+                      },
+                    )
                   )
                 ],
               ),
@@ -345,9 +392,7 @@ class _ImageEditingPageState extends State<ImageEditingPage> with TickerProvider
 
 class ImageDrawer extends CustomPainter {
   ui.Image image;
-
   ImageDrawer({this.image});
-
   List<DrawingArea> points = [];
 
   void update(List<DrawingArea> offset) {
